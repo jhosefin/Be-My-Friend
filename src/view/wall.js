@@ -1,5 +1,6 @@
+import { getAuth } from 'firebase/auth';
 import {
-  exit, deletePost, auth, editPosts, getPost, likePost, dislikePost,
+  exit, deletePost, editPosts, getPost, likePost, dislikePost,
 } from '../lib/index.js';
 
 export const wall = (navigateTo) => {
@@ -42,6 +43,7 @@ export const wall = (navigateTo) => {
   const iconAddHeader = document.createElement('img');
   iconAddHeader.setAttribute('src', '../img/AÑADIRINACTIVO.png');
   iconAddHeader.setAttribute('class', 'containerIcons');
+  iconAddHeader.setAttribute('id', 'containerIcons');
   iconAddHeader.addEventListener('mouseover', () => {
     iconAddHeader.src = 'img/AÑADIRACTIVO.png';
   });
@@ -97,6 +99,7 @@ export const wall = (navigateTo) => {
   iconSearch.setAttribute('src', '../img/LUPA.png');
 
   const iconAdd = document.createElement('img');
+  iconAdd.setAttribute('id', 'iconAdd');
   iconAdd.setAttribute('src', '../img/AÑADIRINACTIVO.png');
 
   iconAdd.addEventListener('mouseover', () => {
@@ -124,7 +127,7 @@ export const wall = (navigateTo) => {
   // Nos permite ocultar el modal despúes de 5sg
   setTimeout(() => {
     modalPaw.remove();
-  }, 5000);
+  }, 4000);
   // Termina modal de información de huella
 
   // sección de appends
@@ -201,7 +204,7 @@ export const wall = (navigateTo) => {
       const likeHeart = document.createElement('img');
       /* Operador ternario para identificar si existe un usuario en la data de like.
       si existe se mostrara la img de activo, si no cambiara a la imagen de corazón blanco */
-      likeHeart.setAttribute('src', post.data().like.includes(auth.currentUser.uid) ? 'img/likeactivo.png' : 'img/like.png');
+      likeHeart.setAttribute('src', post.data().like.includes(getAuth().currentUser.uid) ? 'img/likeactivo.png' : 'img/like.png');
       likeHeart.setAttribute('id', 'likeHeart');
 
       // span para mostrar la cantidad de like que se ha dado al post
@@ -234,18 +237,18 @@ export const wall = (navigateTo) => {
       liCancel.setAttribute('class', 'liCancel ');
       liCancel.textContent = 'Cancel';
       liCancel.addEventListener('click', () => {
-        modal.close(); // al hacer click se cierra el modal
+        modal.remove(); // al hacer click se cierra el modal
       });
 
       // Al escoger Delete en el menú, se abre el primer modal
       liDelete.addEventListener('click', () => {
-        menuPoints.close();
+        menuPoints.remove();
         modal.open = true;
       });
 
       // Al hacer clic en la x , se cierra
       iconClose.addEventListener('click', () => {
-        menuPoints.close();
+        menuPoints.remove();
       });
 
       // ------------------- Mensaje de eliminado confirmado
@@ -272,7 +275,7 @@ export const wall = (navigateTo) => {
       modalConfirm.append(pDeleted, iconCheck);
 
       // --------------condición para el menu points, solo lo veran en el post del usuario activo
-      if (post.data().uid === auth.currentUser.uid) {
+      if (post.data().uid === getAuth().currentUser.uid) {
         divUsersPointsEl.append(iconoPoints);
         postArticle.append(menuPoints);
         liDelete.append(iconTrash, 'Delete');
@@ -291,19 +294,18 @@ export const wall = (navigateTo) => {
         // Eliminar el post
         deletePost(post.id);
         // Cerrar el modal de confirmación
-        modal.close();
+        modal.remove();
         // Mostrar el mensaje de eliminado confirmado
         modalConfirm.open = true;
         setTimeout(() => {
-          modalConfirm.close();
+          modalConfirm.remove();
         }, 3000); // 3000 milisegundos = 3 segundos
       });
 
-      likeHeart.addEventListener('click', (e) => {
-        e.preventDefault();
+      likeHeart.addEventListener('click', () => {
         /* Si dentro del array de la key "like" existe el uid del usuario actual,
         entonces se quita el like */
-        if (post.data().like.includes(auth.currentUser.uid)) {
+        if (post.data().like.includes(getAuth().currentUser.uid)) {
           dislikePost(post.id);
         } else {
           likePost(post.id);
@@ -313,6 +315,7 @@ export const wall = (navigateTo) => {
       // -------------------------------------------------------- Modal para editar post
       const modalEdit = document.createElement('dialog');
       modalEdit.setAttribute('class', 'modalEdit');
+      modalEdit.setAttribute('id', 'modalEdit');
 
       const editContainer = document.createElement('div');
       editContainer.setAttribute('class', 'editContainer');
@@ -320,6 +323,7 @@ export const wall = (navigateTo) => {
       const cancelEdit = document.createElement('img');
       cancelEdit.setAttribute('src', '../img/cancel.png');
       cancelEdit.setAttribute('class', 'iconClose');
+      cancelEdit.setAttribute('id', 'cancelEdit');
 
       const pEditPost = document.createElement('p');
       pEditPost.setAttribute('id', 'pEditPost');
@@ -372,7 +376,7 @@ export const wall = (navigateTo) => {
       // Sección de addEventListener
 
       liEdit.addEventListener('click', () => {
-        menuPoints.close();
+        menuPoints.remove();
         modalEdit.open = true;
       });
 
@@ -383,18 +387,18 @@ export const wall = (navigateTo) => {
           // se edita el post, y se envian los valores del input para que sean actualizados
           editPosts(post.id, inputEditName.value, inputEditDescription.value);
           // Cerramos el modal
-          modalEdit.close();
+          modalEdit.remove();
           // Abrimos modal de confirmación
           modalConfirmEdit.open = true;
           // lo cerramos a los 3 sg
           setTimeout(() => {
-            modalConfirmEdit.close();
+            modalConfirmEdit.remove();
           }, 3000);
         }
       });
 
       cancelEdit.addEventListener('click', () => {
-        modalEdit.close();
+        modalEdit.remove();
       });
 
       iconoPoints.addEventListener('click', () => {

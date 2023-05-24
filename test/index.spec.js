@@ -1,33 +1,31 @@
-import { exit } from '../src/lib/index.js';
-// Mock de la función signOut de Firebase
-jest.mock('firebase/auth', () => ({
-  auth: jest.(() => ({
-    signOut: jest.fn(() => Promise.resolve()),
-  })),
-}));
+import { exit } from '../src/lib/index.js';// Importa la función exit desde tu archivo de Firebase
 
 describe('exit', () => {
-  it('should call signOut and navigate to welcome', async () => {
-    const navigateTo = jest.fn();
-    const consoleLogSpy = jest.spyOn(console, 'log');
+  it('navigates to the specified path after successful sign-out', () => {
+    const navigateTo = jest.fn(); // Crea una función simulada para navigateTo
+    const signOut = jest.fn().mockResolvedValue();
+    // Crea una promesa resuelta simulada para signOut
 
-    await exit(navigateTo);
+    exit(navigateTo); // Llama a la función exit con la función simulada navigateTo
 
-    expect(firebase.auth().signOut).toHaveBeenCalled();
-    expect(consoleLogSpy).toHaveBeenCalledWith('saliendo');
-    expect(navigateTo).toHaveBeenCalledWith('/');
+    expect(signOut).toHaveBeenCalled(); // Comprueba que se haya llamado a la función signOut
+
+    return signOut().then(() => {
+      expect(navigateTo).toHaveBeenCalledWith('/'); // Comprueba que navigateTo se haya llamado con el parámetro '/'
+    });
   });
 
-  it('should handle error and log it', async () => {
+  it('logs the error if sign-out fails', () => {
     const navigateTo = jest.fn();
-    const consoleLogSpy = jest.spyOn(console, 'log');
-    const error = new Error('Sign-out failed');
-    firebase.auth().signOut.mockRejectedValueOnce(error);
+    const error = 'Sign-out error';
+    const signOut = jest.fn().mockRejectedValue(error); // Crea una promesa rechazada simulada para signOut
 
-    await exit(navigateTo);
+    exit(navigateTo);
 
-    expect(firebase.auth().signOut).toHaveBeenCalled();
-    expect(consoleLogSpy).toHaveBeenCalledWith(error);
-    expect(navigateTo).not.toHaveBeenCalled();
+    expect(signOut).toHaveBeenCalled();
+
+    return signOut().catch((error) => {
+      expect(console.log).toHaveBeenCalledWith(error); // Comprueba que se haya llamado a console.log con el error
+    });
   });
 });

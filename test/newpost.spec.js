@@ -11,6 +11,7 @@ jest.mock('firebase/auth', () => ({
   getAuth: () => ({
     currentUser: {
       displayName: 'John Doe', // Simular el displayName del usuario actual
+      uid: '123',
     },
   }),
 }));
@@ -20,7 +21,7 @@ jest.mock('../src/lib/index.js', () => {
   return {
     __esModule: true,
     ...originalModule,
-    addPost: jest.fn((name, description) => originalModule.addPost(name, description)),
+    addPost: jest.fn(() => Promise.resolve()),
     /* el mock debe devolver una fx que imite el comportamiento original de la misma
     en nuestro caso, imitar que recibe estos dos params */
   };

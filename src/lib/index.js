@@ -23,7 +23,6 @@ export const auth = getAuth(app);
 const dataBase = getFirestore(app); // Initialize Firestore
 export const colRef = collection(dataBase, 'post'); // Referencia de la colección de "post"
 const orderedQuery = query(colRef, orderBy('timestamp', 'desc')); // Consulta la colección y la ordena los posts por su fecha/hora de publicación
-
 // Fx para crear usuarix
 export const createUser = async (navigateTo) => {
   const email = document.getElementById('txtEmail');
@@ -110,14 +109,14 @@ export const LoginUser = (navigateTo) => {
 
 // Fx para sign out
 export const exit = (navigateTo) => {
-  signOut(auth).then(() => {
+  signOut()
+    .then(() => {
     // Sign-out successful.
-    console.log('saliendo');
-    navigateTo('/');
-  }).catch((error) => {
-    console.log(error);
+      navigateTo('/');
+    }).catch((error) => {
+      console.log(error);
     // An error happened.
-  });
+    });
 };
 
 // Obtiene los datos de nuestra colección
